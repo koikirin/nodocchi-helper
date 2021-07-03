@@ -158,12 +158,12 @@ function solveRankFromGameList(gamelist, username) {
     4: {
       level: 0,
       pt: 0,
-      rank: 0
+      rate: 0
     },
     3: {
       level: 0,
       pt: 0,
-      rank: 0
+      rate: 0
     }
   };
 
@@ -179,14 +179,20 @@ function solveRankFromGameList(gamelist, username) {
     else if (place == 3 && game.playernum == 3) dpt = tenhou.dpts[ranks[game.playernum].level];
     else if (place == 4) dpt = tenhou.dpts[ranks[game.playernum].level];
     ranks[game.playernum].pt += dpt;
+    // console.log(`${stringify_ranks(ranks)} ${dpt}`)
     if (ranks[game.playernum].pt >= tenhou.pts[ranks[game.playernum].level][2]) {
       // Level Up
       ranks[game.playernum].level += 1;
       ranks[game.playernum].pt = tenhou.pts[ranks[game.playernum].level][1];
     } else if (ranks[game.playernum].pt < 0) {
       // Level Down
-      ranks[game.playernum].level -= 1;
-      ranks[game.playernum].pt = tenhou.pts[ranks[game.playernum].level][1];
+      if (ranks[game.playernum].level < 10)
+        // No Level Down before 初段
+        ranks[game.playernum].pt = 0;
+      else {
+        ranks[game.playernum].level -= 1;
+        ranks[game.playernum].pt = tenhou.pts[ranks[game.playernum].level][1];
+      }
     }
   }
 

@@ -22,9 +22,8 @@ const server = http.createServer((request, res) => {
         const username = GetRequestParamValue(request, 'username');
         const p = getCurrentRank(username).then(ranks => {
             try {
-                description = stringify_ranks(ranks)
-                ranks.description = `${username} ${stringify_ranks(ranks)}`
-                console.log(description);
+                ranks.description = `${username} ${stringify_ranks(ranks)} ${stringify_ranks(ranks, true)}`
+                console.log(ranks.description);
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.write(JSON.stringify(ranks));  
                 res.end();

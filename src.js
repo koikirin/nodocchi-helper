@@ -111,8 +111,9 @@ function range(size, startAt = 0) {
   return [...Array(size).keys()].map(i => i + startAt);
 }
 
-function stringify_ranks(ranks) {
-  return `[${TenhouHelper.pts[ranks[4].level][0]} ${ranks[4].pt}/${TenhouHelper.pts[ranks[4].level][2]}][${TenhouHelper.pts[ranks[3].level][0]} ${ranks[3].pt}/${TenhouHelper.pts[ranks[3].level][2]}]`
+function stringify_ranks(ranks, highest=false) {
+  prefix = highest ? "h" : "";
+  return `[${TenhouHelper.pts[ranks[prefix+4].level][0]} ${ranks[prefix+4].pt}/${TenhouHelper.pts[ranks[prefix+4].level][2]}][${TenhouHelper.pts[ranks[prefix+3].level][0]} ${ranks[prefix+3].pt}/${TenhouHelper.pts[ranks[prefix+3].level][2]}]`
 }
 
 
@@ -164,7 +165,17 @@ function solveRankFromGameList(gamelist, username) {
       level: 0,
       pt: 0,
       rate: 0
-    }
+    },
+    h4: {
+      level: 0,
+      pt: 0,
+      rate: 0
+    },
+    h3: {
+      level: 0,
+      pt: 0,
+      rate: 0
+    },
   };
 
   function update_rank(game, place) {
@@ -179,7 +190,7 @@ function solveRankFromGameList(gamelist, username) {
     else if (place == 3 && game.playernum == 3) dpt = tenhou.dpts[ranks[game.playernum].level];
     else if (place == 4) dpt = tenhou.dpts[ranks[game.playernum].level];
     ranks[game.playernum].pt += dpt;
-    // console.log(`${stringify_ranks(ranks)} ${dpt}`)
+    // console.log(`${JSON.stringify(game)}  ${stringify_ranks(ranks)} ${dpt}`)
     if (ranks[game.playernum].pt >= tenhou.pts[ranks[game.playernum].level][2]) {
       // Level Up
       ranks[game.playernum].level += 1;
@@ -194,6 +205,12 @@ function solveRankFromGameList(gamelist, username) {
         ranks[game.playernum].pt = tenhou.pts[ranks[game.playernum].level][1];
       }
     }
+
+    // Update Highest Rank
+    if ((ranks[game.playernum].level > ranks["h"+game.playernum].level) || ((ranks[game.playernum].level == ranks["h"+game.playernum].level) && (ranks[game.playernum].pt > ranks["h"+game.playernum].pt))) {
+      ranks["h"+game.playernum] = Object.assign({}, ranks[game.playernum])
+    }
+
   }
 
   gamelist.forEach(game => {

@@ -72,7 +72,7 @@ class TenhouHelper {
       ["八段", 1600, 3200],
       ["九段", 1800, 3600],
       ["十段", 2000, 4000],
-      ["天鳳位", 0, 0],
+      ["天鳳位", 2200, 4400],
     ]
   }
 
@@ -189,6 +189,7 @@ function solveRankFromGameList(gamelist, username) {
     else if (place == 2 && game.playernum == 4) dpt = tenhou.dpts_match[game.playerlevel][1];
     else if (place == 3 && game.playernum == 3) dpt = tenhou.dpts[ranks[game.playernum].level];
     else if (place == 4) dpt = tenhou.dpts[ranks[game.playernum].level];
+    if (ranks[game.playernum] == 20) dpt = 0;
     ranks[game.playernum].pt += dpt;
     // console.log(`${JSON.stringify(game)}  ${stringify_ranks(ranks)} ${dpt}`)
     if (ranks[game.playernum].pt >= tenhou.pts[ranks[game.playernum].level][2]) {
@@ -210,6 +211,8 @@ function solveRankFromGameList(gamelist, username) {
     if ((ranks[game.playernum].level > ranks["h"+game.playernum].level) || ((ranks[game.playernum].level == ranks["h"+game.playernum].level) && (ranks[game.playernum].pt > ranks["h"+game.playernum].pt))) {
       ranks["h"+game.playernum] = Object.assign({}, ranks[game.playernum])
     }
+
+    ranks["name4"] = TenhouHelper.pts[ranks[4].level][0]
 
   }
 
@@ -233,6 +236,7 @@ function solveRankFromGameList(gamelist, username) {
 async function getCurrentRank(username) {
   let gamelist = await fetchGameListFromNodochi(username);
   gamelist = filterCurrentAccountGameList(gamelist);
+  console.log(gamelist.length)
   let ranks = solveRankFromGameList(gamelist, username);
   return ranks;
 }

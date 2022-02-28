@@ -1,5 +1,10 @@
 const http = require("http");
 const { getCurrentRank, stringify_ranks } = require("./src.js");
+const mongo = require("mongodb");
+
+let client = new mongo.MongoClient("mongodb://127.0.0.1:27017/tenhou")
+client.connect()
+
 
 function GetRequestParamValue(request, paras) {
     var url = request.url;
@@ -13,8 +18,22 @@ function GetRequestParamValue(request, paras) {
     if (typeof (returnValue) == "undefined") {
         return "";
     } else {
-        return decodeURI(returnValue);
+        return decodeURIComponent(returnValue);
     }
+}
+
+async function updateToDatabase(ranks) {
+    await client.db().collection("ranks").updateOne({
+        username: ranks.username,
+    },
+    {
+        "$set": {
+            query_time: Date.now(),
+            ...ranks
+        }
+    }, options = {
+        upsert: true
+    })
 }
 
 const server = http.createServer((request, res) => {
@@ -22,7 +41,10 @@ const server = http.createServer((request, res) => {
         const username = GetRequestParamValue(request, 'username');
         const p = getCurrentRank(username).then(ranks => {
             try {
+                updateToDatabase(ranks)
+
                 ranks.description = `${username} ${stringify_ranks(ranks)}`
+                ranks.hdescription = `${stringify_ranks(ranks, true)}`
                 console.log(ranks.description);
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.write(JSON.stringify(ranks));  

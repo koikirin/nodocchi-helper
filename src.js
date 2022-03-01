@@ -235,6 +235,8 @@ function setupRanks(username) {
       rate: 0,
       time: 0,
       time_phoenix: 0,
+      time_last: 0,
+      count: 0
     },
     3: {
       level: 0,
@@ -242,6 +244,8 @@ function setupRanks(username) {
       rate: 0,
       time: 0,
       time_phoenix: 0,
+      time_last: 0,
+      count: 0
     },
     h4: {
       level: 0,
@@ -262,12 +266,12 @@ function setupRanks(username) {
 function solveRankFromGameList(gamelist, username, base_ranks) {
 
   let ranks = setupRanks(username);
-  if (base_ranks != undefined) ranks = base_ranks;
+  if (base_ranks != undefined) ranks = JSON.parse(JSON.stringify(base_ranks));
 
   function update_rank(game, place) {
     const tenhou = get_tenhou(game.playernum, game.playlength, game.starttime);
 
-    if (ranks[game.playernum].level == tenhou.max_level) return;
+    // if (ranks[game.playernum].level == tenhou.max_level) return;
 
     if (game.playerlevel == 3 && ranks[game.playernum].level < 15) {
       console.log(ranks, game)
@@ -277,6 +281,10 @@ function solveRankFromGameList(gamelist, username, base_ranks) {
       console.log(ranks, game)
       throw 2;
     }
+
+    ranks[game.playernum].count ++;
+    ranks[game.playernum].time_last = parseInt(game.starttime);
+
     let dpt = 0;
     if (place == 1 && game.playernum == 4) dpt = tenhou.dpts_match[game.playerlevel][0];
     else if (place == 1 && game.playernum == 3) dpt = tenhou.dpts_match[game.playerlevel];
@@ -353,18 +361,30 @@ async function getCurrentRank(username) {
     try {
       ranks = solveRankFromGameList(gamelist, username, ranks)
     } catch (e) {
-      console.log(e)
+      console.log("Failed at ", e)
       try {
         ranks = solveRankFromGameList(gamelist, username, allranks[allranks.length - 1])
-      } catch (e) { console.log('?', e) }
+      } catch (e) { console.log("Failed at ", e) }
     }
     allranks.push(ranks);
-    if (ranks.h4.level == 20 || ranks.h3.level == 20) ;
+    if (ranks[4].level >= 16 || ranks[3].level >= 16) ;
     else ranks = setupRanks(username);
   })
   // console.log(allranks)
   return allranks[allranks.length - 1];
 }
+
+
+/*
+
+Returned Data:
+rank, high rank, time
+
+last_match_time
+match count
+
+
+*/
 
 
 module.exports = {

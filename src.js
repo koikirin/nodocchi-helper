@@ -84,29 +84,29 @@ class TenhouHelper {
         ["天鳳位", 2200, 4400],
       ]
     else
-    return [
-      ["新人", 0, 30],
-      ["９級", 0, 30],
-      ["８級", 0, 30],
-      ["７級", 0, 60],
-      ["６級", 0, 60],
-      ["５級", 0, 60],
-      ["４級", 0, 90],
-      ["３級", 0, 100],
-      ["２級", 0, 100],
-      ["１級", 0, 100],
-      ["初段", 200, 400],
-      ["二段", 400, 800],
-      ["三段", 600, 1200],
-      ["四段", 800, 1600],
-      ["五段", 1000, 2000],
-      ["六段", 1200, 2400],
-      ["七段", 1400, 2800],
-      ["八段", 1600, 3200],
-      ["九段", 1800, 3600],
-      ["十段", 2000, 4000],
-      ["天鳳位", 2200, 4400],
-    ]
+      return [
+        ["新人", 0, 30],
+        ["９級", 0, 30],
+        ["８級", 0, 30],
+        ["７級", 0, 60],
+        ["６級", 0, 60],
+        ["５級", 0, 60],
+        ["４級", 0, 90],
+        ["３級", 0, 100],
+        ["２級", 0, 100],
+        ["１級", 0, 100],
+        ["初段", 200, 400],
+        ["二段", 400, 800],
+        ["三段", 600, 1200],
+        ["四段", 800, 1600],
+        ["五段", 1000, 2000],
+        ["六段", 1200, 2400],
+        ["七段", 1400, 2800],
+        ["八段", 1600, 3200],
+        ["九段", 1800, 3600],
+        ["十段", 2000, 4000],
+        ["天鳳位", 2200, 4400],
+      ]
   }
 
   static get max_level() {
@@ -119,10 +119,10 @@ class TenhouHelper {
     this.version = version;
 
     /* v1: ser=1, v2,v3: ser=1.5 */
-    const f_length = x => this.playlength == 2 ? x*(version >= 2 ? 1.5 : 1) : x;
+    const f_length = x => this.playlength == 2 ? x * (version >= 2 ? 1.5 : 1) : x;
 
     this.dpts = [
-      0, 0, 0, 0, 0, 0, 0, 0, 
+      0, 0, 0, 0, 0, 0, 0, 0,
       -10, -20, -30, -40, -50, -60, -70, -80, -90, -100, -110, -120, 0
     ].map(f_length);
 
@@ -134,7 +134,7 @@ class TenhouHelper {
           [50, 20].map(f_length),
           [60, 30].map(f_length),
         ];
-      else 
+      else
         this.dpts_match = [
           [30, 0].map(f_length),
           [40, 10].map(f_length),
@@ -146,16 +146,16 @@ class TenhouHelper {
         30, 50, 70, 90
       ].map(f_length);
     }
-  } 
+  }
 };
 
 function range(size, startAt = 0) {
   return [...Array(size).keys()].map(i => i + startAt);
 }
 
-function stringify_ranks(ranks, highest=false) {
+function stringify_ranks(ranks, highest = false) {
   prefix = highest ? "h" : "";
-  return `[${get_tenhou(4).pts[ranks[prefix+4].level][0]} ${ranks[prefix+4].pt}/${get_tenhou(4).pts[ranks[prefix+4].level][2]}][${get_tenhou(3).pts[ranks[prefix+3].level][0]} ${ranks[prefix+3].pt}/${get_tenhou(3).pts[ranks[prefix+3].level][2]}]`
+  return `[${get_tenhou(4).pts[ranks[prefix + 4].level][0]} ${ranks[prefix + 4].pt}/${get_tenhou(4).pts[ranks[prefix + 4].level][2]}][${get_tenhou(3).pts[ranks[prefix + 3].level][0]} ${ranks[prefix + 3].pt}/${get_tenhou(3).pts[ranks[prefix + 3].level][2]}]`
 }
 
 
@@ -170,7 +170,7 @@ Array(3, 4).forEach(i => {
   })
 })
 
-function get_tenhou(playernum, playlength=2, time=2508792400) {
+function get_tenhou(playernum, playlength = 2, time = 2508792400) {
   if (time < 1220194800) version = 1
   else if (time < 1508792400) version = 2
   else version = 3
@@ -180,7 +180,7 @@ function get_tenhou(playernum, playlength=2, time=2508792400) {
 
 async function fetchGameListFromNodochi(username) {
   let url = `https://nodocchi.moe/api/listuser.php?name=` + encodeURIComponent(username)
-  let resp = await(await fetch(url, {
+  let resp = await (await fetch(url, {
     method: 'GET',
     headers: {
       referer: 'https://nodocchi.moe/',
@@ -196,11 +196,11 @@ function splitAccountGameList(gamelist) {
   let curTime = 0;
   const accountPeriod = 180 * 24 * 60 * 60;
   let i;
-  for(i = gamelist.length - 1; i >= 0; i--) {
+  for (i = gamelist.length - 1; i >= 0; i--) {
     const game = gamelist[i];
     if (curTime - game.starttime > accountPeriod) {
-    result.push(gamelist.slice(i+1, gamelist.length))
-      gamelist = gamelist.slice(0, i+1)
+      result.push(gamelist.slice(i + 1, gamelist.length))
+      gamelist = gamelist.slice(0, i + 1)
     }
     curTime = game.starttime;
   }
@@ -236,7 +236,8 @@ function setupRanks(username) {
       time: 0,
       time_phoenix: 0,
       time_last: 0,
-      count: 0
+      count: 0,
+      trend: ""
     },
     3: {
       level: 0,
@@ -245,7 +246,8 @@ function setupRanks(username) {
       time: 0,
       time_phoenix: 0,
       time_last: 0,
-      count: 0
+      count: 0,
+      trend: ""
     },
     h4: {
       level: 0,
@@ -282,8 +284,9 @@ function solveRankFromGameList(gamelist, username, base_ranks) {
       throw 2;
     }
 
-    ranks[game.playernum].count ++;
+    ranks[game.playernum].count++;
     ranks[game.playernum].time_last = parseInt(game.starttime);
+    ranks[game.playernum].trend += place;
 
     let dpt = 0;
     if (place == 1 && game.playernum == 4) dpt = tenhou.dpts_match[game.playerlevel][0];
@@ -310,19 +313,19 @@ function solveRankFromGameList(gamelist, username, base_ranks) {
     }
 
     // Update Highest Rank
-    if ((ranks[game.playernum].level > ranks["h"+game.playernum].level) || ((ranks[game.playernum].level == ranks["h"+game.playernum].level) && (ranks[game.playernum].pt > ranks["h"+game.playernum].pt))) {
+    if ((ranks[game.playernum].level > ranks["h" + game.playernum].level) || ((ranks[game.playernum].level == ranks["h" + game.playernum].level) && (ranks[game.playernum].pt > ranks["h" + game.playernum].pt))) {
       // If Level Up, Record Time
-      if (ranks[game.playernum].level > ranks["h"+game.playernum].level) {
-        ranks["h"+game.playernum].level = ranks[game.playernum].level
-        ranks["h"+game.playernum].pt = ranks[game.playernum].pt
-        ranks["h"+game.playernum].rate = ranks[game.playernum].rate
-        ranks["h"+game.playernum].time = parseInt(game.starttime)
+      if (ranks[game.playernum].level > ranks["h" + game.playernum].level) {
+        ranks["h" + game.playernum].level = ranks[game.playernum].level
+        ranks["h" + game.playernum].pt = ranks[game.playernum].pt
+        ranks["h" + game.playernum].rate = ranks[game.playernum].rate
+        ranks["h" + game.playernum].time = parseInt(game.starttime)
         // Phoenix!
         if (ranks[game.playernum].level == 16) ranks[game.playernum].time_phoenix = parseInt(game.starttime)
       } else {
-        ranks["h"+game.playernum].level = ranks[game.playernum].level
-        ranks["h"+game.playernum].pt = ranks[game.playernum].pt
-        ranks["h"+game.playernum].rate = ranks[game.playernum].rate
+        ranks["h" + game.playernum].level = ranks[game.playernum].level
+        ranks["h" + game.playernum].pt = ranks[game.playernum].pt
+        ranks["h" + game.playernum].rate = ranks[game.playernum].rate
       }
     }
 
@@ -367,7 +370,7 @@ async function getCurrentRank(username) {
       } catch (e) { console.log("Failed at ", e) }
     }
     allranks.push(ranks);
-    if (ranks[4].level >= 16 || ranks[3].level >= 16) ;
+    if (ranks[4].level >= 16 || ranks[3].level >= 16);
     else ranks = setupRanks(username);
   })
   // console.log(allranks)

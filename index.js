@@ -26,14 +26,14 @@ async function updateToDatabase(ranks) {
     await client.db().collection("ranks").updateOne({
         username: ranks.username,
     },
-    {
-        "$set": {
-            query_time: Date.now(),
-            ...ranks
-        }
-    }, options = {
-        upsert: true
-    })
+        {
+            "$set": {
+                query_time: Date.now(),
+                ...ranks
+            }
+        }, options = {
+            upsert: true
+        })
 }
 
 const server = http.createServer((request, res) => {
@@ -47,7 +47,7 @@ const server = http.createServer((request, res) => {
                 ranks.hdescription = `${stringify_ranks(ranks, true)}`
                 console.log(ranks.description);
                 res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.write(JSON.stringify(ranks));  
+                res.write(JSON.stringify(ranks));
                 res.end();
             } catch (e) {
                 console.log(e)
@@ -65,6 +65,6 @@ const server = http.createServer((request, res) => {
     }
 });
 
-server.listen(7235);
+server.listen(7235, "127.0.0.1");
 
 console.log("Server running at :7235");

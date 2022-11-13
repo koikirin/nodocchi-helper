@@ -178,16 +178,30 @@ function get_tenhou(playernum, playlength = 2, time = 2508792400) {
 }
 
 
+async function try_fetch_from_url(candidates) {
+  for (let url of candidates) {
+    let resp = await fetch(url, {
+      method: 'GET', headers: {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+      }
+    });
+    if (resp.status == 200) return resp.text();
+  }
+  throw `Cannot fetch url ${candidates[0]}`
+}
+
+
 async function fetchGameListFromNodochi(username) {
+  // let url = `http://127.0.0.1:12315/https/nodocchi.moe/api/listuser.php?name=` + encodeURIComponent(username)
+
   let url = `https://nodocchi.moe/api/listuser.php?name=` + encodeURIComponent(username)
-  let resp = await (await fetch(url, {
-    method: 'GET',
-    headers: {
-      referer: 'https://nodocchi.moe/',
-      "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7"
-    }
-  })).text();
-  gamelist = JSON.parse(resp);
+
+  try {
+    resp = await try_fetch_from_url(new Array(5).fill(url));
+    gamelist = JSON.parse(resp);
+  } catch (e) {
+    throw e
+  }
   return gamelist.list;
 }
 

@@ -240,7 +240,7 @@ function splitAccountGameList(gamelist) {
 //   return newGamelist;
 // }
 
-function setupRanks(username) {
+function setupRanks(username, extra = {}) {
   let ranks = {
     username: username,
     4: {
@@ -275,6 +275,7 @@ function setupRanks(username) {
       rate: 0,
       time: 0
     },
+    ...extra
   };
   return ranks;
 }
@@ -371,9 +372,10 @@ function solveRankFromGameList(gamelist, username, base_ranks) {
 async function getCurrentRank(username) {
   let gamelist = await fetchGameListFromNodochi(username);
   if (gamelist == undefined || gamelist.length == 0) throw -1
+  let last_time = parseInt(gamelist[-1].starttime)
   gamelists = splitAccountGameList(gamelist);
   let allranks = [];
-  let ranks = setupRanks(username);
+  let ranks = setupRanks(username, { last_time: last_time });
   gamelists.forEach(gamelist => {
     try {
       ranks = solveRankFromGameList(gamelist, username, ranks)
@@ -385,7 +387,7 @@ async function getCurrentRank(username) {
     }
     allranks.push(ranks);
     if (ranks[4].level >= 16 || ranks[3].level >= 16);
-    else ranks = setupRanks(username);
+    else ranks = setupRanks(username, { last_time: last_time });
   })
   // console.log(allranks)
   return allranks[allranks.length - 1];

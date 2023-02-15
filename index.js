@@ -6,7 +6,7 @@ let client = new mongo.MongoClient("mongodb://127.0.0.1:27017/tenhou")
 client.connect()
 
 
-function GetRequestParamValue(request, paras) {
+function GetRequestParamValue(request, paras, defvalue = "") {
     var url = request.url;
     var paraString = url.substring(url.indexOf("?") + 1, url.length).split("&");
     var paraObj = {}
@@ -16,7 +16,7 @@ function GetRequestParamValue(request, paras) {
     }
     var returnValue = paraObj[paras.toLowerCase()];
     if (typeof (returnValue) == "undefined") {
-        return "";
+        return defvalue;
     } else {
         return decodeURIComponent(returnValue);
     }
@@ -28,8 +28,8 @@ async function updateToDatabase(ranks) {
     },
         {
             "$set": {
+                ...ranks,
                 query_time: Date.now(),
-                ...ranks
             }
         }, options = {
             upsert: true
@@ -39,7 +39,9 @@ async function updateToDatabase(ranks) {
 const server = http.createServer((request, res) => {
     if (request.url.startsWith("/rank")) {
         const username = GetRequestParamValue(request, 'username');
-        const p = getCurrentRank(username).then(ranks => {
+        const source = GetRequestParamValue(request, 'source', 'mix');
+
+        const p = getCurrentRank(username, source).then(ranks => {
             try {
                 updateToDatabase(ranks)
 

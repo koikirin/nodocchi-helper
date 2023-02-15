@@ -45,8 +45,12 @@ rate
 
 /* Define Node JS */
 const fetch = require("node-fetch");
+const mongo = require("mongodb");
 /* */
 
+
+let client = new mongo.MongoClient("mongodb://127.0.0.1:27017/tenhou");
+client.connect();
 
 
 /*
@@ -205,6 +209,30 @@ async function fetchGameListFromNodochi(username) {
   return gamelist.list;
 }
 
+
+async function fetchGameListFromLocalDatabase(username) {
+  let r = await client.db().collection("ranks").findOne({
+    username: username
+  });
+  if (r == undefined || r == null || !r.last_match) return null;
+  delete r._id;
+  let synclog = await client.db().collection("synclog").findOne();
+  if (r.last_match < synclog.start) return null;
+  let matches = await client.db().collection("matches").find({
+    sctype: "b",
+    players: username,
+    starttime: {
+      $gt: r.last_match
+    }
+  }).sort({ starttime: -1 }).toArray()
+  return {
+    ranks: r,
+    matches: matches
+  }
+
+}
+
+
 function splitAccountGameList(gamelist) {
   let result = [];
   let curTime = 0;
@@ -291,11 +319,11 @@ function solveRankFromGameList(gamelist, username, base_ranks) {
     // if (ranks[game.playernum].level == tenhou.max_level) return;
 
     if (game.playerlevel == 3 && ranks[game.playernum].level < 15) {
-      console.log(ranks, game)
+      console.log(username, game)
       throw 1;
     }
     if (game.playerlevel == 2 && ranks[game.playernum].level < 12) {
-      console.log(ranks, game)
+      console.log(username, game)
       throw 2;
     }
 
@@ -350,7 +378,8 @@ function solveRankFromGameList(gamelist, username, base_ranks) {
     if (['b', 'c'].includes(game.sctype)) {
       let place = 0;
       for (const i of range(parseInt(game.playernum), 1)) {
-        if (game[`player${i}`] == username) {
+        // Support both nodocchi format and database format
+        if (game[`player${i}`] == username || (game.players && game.players[i - 1] == username)) {
           place = i;
           break;
         }
@@ -369,13 +398,39 @@ function solveRankFromGameList(gamelist, username, base_ranks) {
 }
 
 
-async function getCurrentRank(username) {
-  let gamelist = await fetchGameListFromNodochi(username);
-  if (gamelist == undefined || gamelist.length == 0) throw -1
-  let last_time = parseInt(gamelist[-1].starttime)
-  gamelists = splitAccountGameList(gamelist);
+async function getCurrentRank(username, source = "mix") {
+  let gamelist;
   let allranks = [];
-  let ranks = setupRanks(username, { last_time: last_time });
+  let ranks;
+  let last_match;
+  let r = null;
+  if (source == "mix" || source == "local")
+    r = await fetchGameListFromLocalDatabase(username);
+  if (r) {
+    console.log("Restore from database for", username);
+    gamelist = r.matches;
+
+    if (gamelist.length == 0) {
+      console.log("Already updated. return.");
+      return r.ranks;
+    }
+
+    last_match = parseInt(gamelist[gamelist.length - 1].starttime);
+    ranks = {
+      ...r.ranks,
+      last_match: last_match,
+    };
+  } else if (source == "nodocchi" || source == "mix") {
+    gamelist = await fetchGameListFromNodochi(username);
+    if (gamelist == undefined || gamelist.length == 0) throw -1
+    last_match = parseInt(gamelist[gamelist.length - 1].starttime);
+    ranks = setupRanks(username, { last_match: last_match });
+  } else {
+    throw "Unknownw source"
+  }
+
+  gamelists = splitAccountGameList(gamelist);
+
   gamelists.forEach(gamelist => {
     try {
       ranks = solveRankFromGameList(gamelist, username, ranks)
@@ -387,7 +442,7 @@ async function getCurrentRank(username) {
     }
     allranks.push(ranks);
     if (ranks[4].level >= 16 || ranks[3].level >= 16);
-    else ranks = setupRanks(username, { last_time: last_time });
+    else ranks = setupRanks(username, { last_match: last_match });
   })
   // console.log(allranks)
   return allranks[allranks.length - 1];
@@ -395,14 +450,14 @@ async function getCurrentRank(username) {
 
 
 /*
-
+ 
 Returned Data:
 rank, high rank, time
-
+ 
 last_match_time
 match count
-
-
+ 
+ 
 */
 
 

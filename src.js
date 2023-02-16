@@ -216,7 +216,7 @@ async function fetchGameListFromLocalDatabase(username) {
   });
   if (r == undefined || r == null || !r.last_match) return null;
   delete r._id;
-  let synclog = await client.db().collection("synclog").findOne();
+  let synclog = (await client.db().collection("synclog").find().sort({ $natural: -1 }).limit(1)).next()
   if (r.last_match < synclog.start) return null;
   let matches = await client.db().collection("matches").find({
     sctype: "b",

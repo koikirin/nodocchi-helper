@@ -52,12 +52,12 @@ const server = http.createServer((request, res) => {
                 res.write(JSON.stringify(ranks));
                 res.end();
             } catch (e) {
-                console.log(e)
+                console.log("Failed to process", username, e);
                 res.writeHead(500);
                 res.end();
             }
         }).catch(e => {
-            console.log(e);
+            console.log("Failed to query", username, e);
             res.writeHead(502);
             res.end();
         })

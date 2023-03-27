@@ -319,12 +319,14 @@ function solveRankFromGameList(gamelist, username, base_ranks) {
     // if (ranks[game.playernum].level == tenhou.max_level) return;
 
     if (game.playerlevel == 3 && ranks[game.playernum].level < 15) {
-      console.log(username, game)
-      throw 1;
+      console.log(username, game.starttime)
+      if (tenhou.version > 2 || (ranks[3].level < 12 && ranks[4].level < 12))
+        throw 1;
     }
     if (game.playerlevel == 2 && ranks[game.playernum].level < 12) {
-      console.log(username, game)
-      throw 2;
+      console.log(username, game.starttime)
+      if (tenhou.version > 2 || (ranks[3].level < 12 && ranks[4].level < 12))
+        throw 2;
     }
 
     ranks[game.playernum].count++;

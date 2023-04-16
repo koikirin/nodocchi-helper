@@ -53,6 +53,11 @@ let client = new mongo.MongoClient("mongodb://127.0.0.1:27017/tenhou");
 client.connect();
 
 
+
+function log(message, ...optionalParams) {
+  console.log(`[${Date()}] ${message}`, ...optionalParams);
+}
+
 /*
 v1
 v2
@@ -342,6 +347,8 @@ function solveRankFromGameList(gamelist, username, base_ranks) {
     if (ranks[game.playernum].level == 20) dpt = 0;
     ranks[game.playernum].pt += dpt;
     // console.log(`${JSON.stringify(game)}  ${stringify_ranks(ranks)} ${dpt}`)
+    // if (game.playernum == 4)
+    // console.log(game.starttime, game.during, ranks[4].level, ranks[4].pt, dpt)
     if (ranks[game.playernum].pt >= tenhou.pts[ranks[game.playernum].level][2]) {
       // Level Up
       ranks[game.playernum].level += 1;
@@ -465,5 +472,6 @@ match count
 
 module.exports = {
   getCurrentRank: getCurrentRank,
-  stringify_ranks: stringify_ranks
+  stringify_ranks: stringify_ranks,
+  log: log
 }

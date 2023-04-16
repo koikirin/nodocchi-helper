@@ -1,5 +1,5 @@
 const http = require("http");
-const { getCurrentRank, stringify_ranks } = require("./src.js");
+const { getCurrentRank, stringify_ranks, log } = require("./src.js");
 const mongo = require("mongodb");
 
 let client = new mongo.MongoClient("mongodb://127.0.0.1:27017/tenhou")
@@ -47,17 +47,17 @@ const server = http.createServer((request, res) => {
 
                 ranks.description = `${username} ${stringify_ranks(ranks)}`
                 ranks.hdescription = `${stringify_ranks(ranks, true)}`
-                console.log(ranks.description);
+                log(ranks.description);
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.write(JSON.stringify(ranks));
                 res.end();
             } catch (e) {
-                console.log("Failed to process", username, e);
+                log("Failed to process", username, e);
                 res.writeHead(500);
                 res.end();
             }
         }).catch(e => {
-            console.log("Failed to query", username, e);
+            log("Failed to query", username, e);
             res.writeHead(502);
             res.end();
         })
@@ -69,4 +69,4 @@ const server = http.createServer((request, res) => {
 
 server.listen(7235, "127.0.0.1");
 
-console.log("Server running at :7235");
+log("Server running at :7235");

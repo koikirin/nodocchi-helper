@@ -425,15 +425,20 @@ async function getCurrentRank(username, source = "mix") {
     }
 
     last_match = parseInt(gamelist[gamelist.length - 1].starttime);
+    last_match_endtime = last_match + 60 * parseInt(gamelist[gamelist.length - 1].during);
+
     ranks = {
       ...r.ranks,
       last_match: last_match,
+      last_match_endtime: last_match_endtime,
     };
   } else if (source == "nodocchi" || source == "mix") {
     gamelist = await fetchGameListFromNodochi(username);
     if (gamelist == undefined || gamelist.length == 0) throw -1
     last_match = parseInt(gamelist[gamelist.length - 1].starttime);
-    ranks = setupRanks(username, { last_match: last_match });
+    last_match_endtime = last_match + 60 * parseInt(gamelist[gamelist.length - 1].during);
+
+    ranks = setupRanks(username, { last_match: last_match, last_match_endtime: last_match_endtime });
   } else {
     throw "Unknownw source"
   }

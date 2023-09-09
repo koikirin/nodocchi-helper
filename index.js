@@ -67,6 +67,6 @@ const server = http.createServer((request, res) => {
     }
 });
 
-server.listen(7235, "127.0.0.1");
+server.listen(process.env.PORT || 7235, process.env.HOST || "127.0.0.1");
 
-log("Server running at :7235");
+log(`Server running at ${process.env.HOST || "127.0.0.1"}:${process.env.PORT || 7235}`);

@@ -1,69 +1,12 @@
-
-/*
-
-starttime
-during
-
-akaari
-- 0
-- 1
-
-kuitanari
-- 0
-- 1
-
-sctype
-- a Lobby
-- b Rank
-- c Rank Higher?
-
-playerlevel
-- 0 Normal
-- 1 Upper
-- 2 Super
-- 3 Phonex
-
-playlength
-- 1 Half
-- 2 Full
-
-playernum
-- 3
-- 4
-
-player$#
-player$#ptr
-
-
-url
-tw
-rate
-
-
-
-*/
-
-/* Define Node JS */
 const fetch = require("node-fetch");
 const mongo = require("mongodb");
-/* */
-
 
 let client = new mongo.MongoClient("mongodb://127.0.0.1:27017/tenhou");
 client.connect();
 
-
-
 function log(message, ...optionalParams) {
   console.log(`[${Date()}] ${message}`, ...optionalParams);
 }
-
-/*
-v1
-v2
-v3
-
-*/
 
 class TenhouHelper {
 
@@ -167,9 +110,7 @@ function stringify_ranks(ranks, highest = false) {
   return `[${get_tenhou(4).pts[ranks[prefix + 4].level][0]} ${ranks[prefix + 4].pt}/${get_tenhou(4).pts[ranks[prefix + 4].level][2]}][${get_tenhou(3).pts[ranks[prefix + 3].level][0]} ${ranks[prefix + 3].pt}/${get_tenhou(3).pts[ranks[prefix + 3].level][2]}]`
 }
 
-
 const tenhous = {}
-
 
 Array(3, 4).forEach(i => {
   [1, 2].forEach(j => {
@@ -186,7 +127,6 @@ function get_tenhou(playernum, playlength = 2, time = 2508792400) {
   return tenhous[`${playernum}.${playlength}.${version}`]
 }
 
-
 async function try_fetch_from_url(candidates) {
   for (let url of candidates) {
     let resp = await fetch(url, {
@@ -198,7 +138,6 @@ async function try_fetch_from_url(candidates) {
   }
   throw `Cannot fetch url ${candidates[0]}`
 }
-
 
 async function fetchGameListFromNodochi(username) {
   // let url = `http://127.0.0.1:12315/https/nodocchi.moe/api/listuser.php?name=` + encodeURIComponent(username)
@@ -213,7 +152,6 @@ async function fetchGameListFromNodochi(username) {
   }
   return gamelist.list;
 }
-
 
 async function fetchGameListFromLocalDatabase(username) {
   let r = await client.db().collection("ranks").findOne({
@@ -234,9 +172,7 @@ async function fetchGameListFromLocalDatabase(username) {
     ranks: r,
     matches: matches
   }
-
 }
-
 
 function splitAccountGameList(gamelist) {
   let result = [];
@@ -346,9 +282,7 @@ function solveRankFromGameList(gamelist, username, base_ranks) {
     else if (place == 4) dpt = tenhou.dpts[ranks[game.playernum].level];
     if (ranks[game.playernum].level == 20) dpt = 0;
     ranks[game.playernum].pt += dpt;
-    // console.log(`${JSON.stringify(game)}  ${stringify_ranks(ranks)} ${dpt}`)
-    // if (game.playernum == 4)
-    // console.log(game.starttime, game.during, ranks[4].level, ranks[4].pt, dpt)
+
     if (ranks[game.playernum].pt >= tenhou.pts[ranks[game.playernum].level][2]) {
       // Level Up
       ranks[game.playernum].level += 1;
@@ -380,7 +314,6 @@ function solveRankFromGameList(gamelist, username, base_ranks) {
         ranks["h" + game.playernum].rate = ranks[game.playernum].rate
       }
     }
-
   }
 
   gamelist.forEach(game => {
@@ -405,7 +338,6 @@ function solveRankFromGameList(gamelist, username, base_ranks) {
 
   return ranks;
 }
-
 
 async function getCurrentRank(username, source = "mix") {
   let gamelist;
@@ -458,22 +390,8 @@ async function getCurrentRank(username, source = "mix") {
     if (ranks[4].level >= 16 || ranks[3].level >= 16);
     else ranks = setupRanks(username, { last_match: last_match });
   })
-  // console.log(allranks)
   return allranks[allranks.length - 1];
 }
-
-
-/*
- 
-Returned Data:
-rank, high rank, time
- 
-last_match_time
-match count
- 
- 
-*/
-
 
 module.exports = {
   getCurrentRank: getCurrentRank,

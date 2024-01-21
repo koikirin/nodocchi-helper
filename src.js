@@ -1,7 +1,8 @@
 const fetch = require("node-fetch");
 const mongo = require("mongodb");
+const config = require("./config.json")
 
-let client = new mongo.MongoClient("mongodb://127.0.0.1:27017/tenhou");
+let client = new mongo.MongoClient(config.database);
 client.connect();
 
 function log(message, ...optionalParams) {

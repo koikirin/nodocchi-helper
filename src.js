@@ -175,18 +175,23 @@ async function fetchGameListFromLocalDatabase(username) {
   }
 }
 
+function timestampToJSTDay(timestamp) {
+  return Math.floor((+timestamp + 32400) / 24 / 3600)
+}
+
 function splitAccountGameList(gamelist) {
   let result = [];
   let curTime = 0;
-  const accountPeriod = 180 * 24 * 60 * 60;
+  const accountPeriod = 180;
   let i;
   for (i = gamelist.length - 1; i >= 0; i--) {
     const game = gamelist[i];
-    if (curTime - game.starttime > accountPeriod) {
+    if (curTime - timestampToJSTDay(game.starttime) > accountPeriod) {
       result.push(gamelist.slice(i + 1, gamelist.length))
       gamelist = gamelist.slice(0, i + 1)
+      console.log('split', result.at(-1).length, curTime, game.starttime, game)
     }
-    curTime = game.starttime;
+    curTime = timestampToJSTDay(game.starttime);
   }
   if (gamelist.length > 0) result.push(gamelist)
   result.reverse()

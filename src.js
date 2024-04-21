@@ -189,7 +189,6 @@ function splitAccountGameList(gamelist) {
     if (curTime - timestampToJSTDay(game.starttime) > accountPeriod) {
       result.push(gamelist.slice(i + 1, gamelist.length))
       gamelist = gamelist.slice(0, i + 1)
-      console.log('split', result.at(-1).length, curTime, game.starttime, game)
     }
     curTime = timestampToJSTDay(game.starttime);
   }
